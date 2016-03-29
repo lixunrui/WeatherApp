@@ -19,124 +19,124 @@ namespace WeatherApp
         internal class Coordinate
         {
             [JsonProperty]
-            double lon; // longitude;
+            internal double lon; // longitude;
             [JsonProperty]
-            double lat; //latitude;
+            internal double lat; //latitude;
         }
 
         /// <summary>
         /// Weather info
         /// </summary>
-        
-        private class Weather
+
+        internal class Weather
         {
             [JsonProperty]
-            int id; // weather condition id
+            internal int id; // weather condition id
             [JsonProperty]
-            string main; // group of weather parameters
+            internal string main; // group of weather parameters
             [JsonProperty]
-            string description; // Weather condition within the group
+            internal string description; // Weather condition within the group
             [JsonProperty]
-            string icon; // weather icon id
+            internal string icon; // weather icon id
         }
 
         /// <summary>
         /// Weather Main
         /// </summary>
        
-        private class WeatherBody
+        internal class WeatherBody
         {
+            [JsonProperty, JsonConverter(typeof(TemperatureConverter))]
+            internal double temp; //temperature, unit default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
             [JsonProperty]
-            double temp; //temperature, unit default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+            internal double pressure; // Atmospheric pressure (on the sea level, if there is no sea_level or grnd_level data), hPa
             [JsonProperty]
-            double pressure; // Atmospheric pressure (on the sea level, if there is no sea_level or grnd_level data), hPa
-            [JsonProperty]
-            double humidity; //Humidity, %
-            [JsonProperty]
-            double temp_min; // Minimum temperature at the moment. 
+            internal double humidity; //Humidity, %
+            [JsonProperty, JsonConverter(typeof(TemperatureConverter))]
+            internal double temp_min; // Minimum temperature at the moment. 
             //This is deviation from current temp that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). 
             //Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+            [JsonProperty, JsonConverter(typeof(TemperatureConverter))]
+            internal double temp_max; // Maximum temperature at the moment.
             [JsonProperty]
-            double temp_max; // Maximum temperature at the moment.
+            internal double sea_level; //Atmospheric pressure on the sea level, hPa
             [JsonProperty]
-            double sea_level; //Atmospheric pressure on the sea level, hPa
-            [JsonProperty]
-            double grnd_level; //Atmospheric pressure on the ground level, hPa
+            internal double grnd_level; //Atmospheric pressure on the ground level, hPa
         }
 
-        
-        private class Wind
+
+        internal class Wind
         {
             [JsonProperty]
-            double speed; //Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
-            [JsonProperty]
-            double deg; //Wind direction, degrees (meteorological)
+            internal double speed; //Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
+            [JsonProperty, JsonConverter(typeof(WindDegreeConver))]
+            internal string deg; //Wind direction, degrees (meteorological)
         }
 
-        
-        private class Rain
+
+        internal class Rain
         {
             [JsonProperty(PropertyName="3h")]
-            double lastThree; // volume for the last three hours
+            internal double lastThree; // volume for the last three hours
         }
 
-       
-        private class Clouds
+
+        internal class Clouds
         {
             [JsonProperty(PropertyName="all")]
-            double cloudiness; // cloudiness %
+            internal double cloudiness; // cloudiness %
         }
 
-        
-        private class Snow
+
+        internal class Snow
         {
             [JsonProperty(PropertyName = "3h")]
-            double lastThree; // volume for the last three hours 
+            internal double lastThree; // volume for the last three hours 
         }
 
-        
-        private class CitySystem
+
+        internal class CitySystem
         {
             [JsonProperty]
-            int type;
+            internal int type;
             [JsonProperty]
-            double id;
+            internal double id;
             [JsonProperty]
-            string message;
+            internal string message;
             [JsonProperty]
-            string country;
+            internal string country;
             [JsonConverter(typeof(TimeConverter)),JsonProperty]
-            DateTime sunrise;
+            internal DateTime sunrise;
             [JsonConverter(typeof(TimeConverter)),JsonProperty]
-            DateTime sunset;
+            internal DateTime sunset;
         }
 
         [JsonProperty]
-        Coordinate coord;
+        internal Coordinate coord;
         [JsonProperty]
-        Weather[] weather;
+        internal Weather[] weather;
         [JsonProperty(PropertyName="base")]
-        string internalParameter;
+        internal string internalParameter;
         [JsonProperty]
-        WeatherBody main;
+        internal WeatherBody main;
         [JsonProperty]
-        Wind wind;
+        internal Wind wind;
         [JsonProperty]
-        Rain rain;
+        internal Rain rain;
         [JsonProperty]
-        Clouds clouds;
+        internal Clouds clouds;
         [JsonProperty]
-        Snow snow;
+        internal Snow snow;
         [JsonConverter(typeof(TimeConverter)), JsonProperty(PropertyName="dt")] // convert UTC time to DateTime
-        DateTime updateTime;// utc time 
+        internal DateTime updateTime;// utc time 
         [JsonProperty]
-        CitySystem sys;
+        internal CitySystem sys;
         [JsonProperty]
-        double id; //city id
+        internal double id; //city id
         [JsonProperty]
-        string name; // city name
+        internal string name; // city name
         [JsonProperty]
-        int cod; // internal parameter 
+        internal int cod; // internal parameter 
     }
 
     internal class GroupCityWeather
@@ -257,6 +257,140 @@ namespace WeatherApp
             }
 
             writer.WriteValue(((DateTime?)value).Value);
+        }
+    }
+
+    /// <summary>
+    /// Convert data to user setting temperature symbol
+    /// </summary>
+    public class TemperatureConverter : JsonConverter
+    {
+        String userTempSymbolSetting = AppSetting.GetTempSymbol();
+
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+            {
+                // cannot convert null to symbol
+                return null;
+            }
+
+            double currentTemp;
+            try
+            {
+                double temp = Convert.ToDouble(reader.Value);
+
+                if (userTempSymbolSetting.ToUpper().StartsWith("C"))
+                {
+                    currentTemp = (temp - 273.15);
+                    return currentTemp;
+                }
+            }
+            catch { }
+
+            return reader.Value;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            writer.WriteValue(value);
+        }
+    }
+
+    public class WindDegreeConver : JsonConverter
+    {
+
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+
+            double windDegree = Convert.ToDouble(reader.Value);
+
+            windDegree = (windDegree - 180) > 0 ? (windDegree - 180): (windDegree + 180);
+
+            string degreeInString= string.Empty;
+
+            var DegreeConvert = new Dictionary<Func<double, bool>, Action>
+            {
+                {
+                    degree => (degree < 11.25 || degree > 348.75), ()=>degreeInString="N"
+                },
+                {
+                    degree => (degree > 11.25 && degree < 33.75), ()=>degreeInString="NNE"
+                },
+                {
+                    degree => (degree<56.25 && degree > 33.75), ()=>degreeInString="NE"
+                },
+                {
+                    degree => (degree<78.75 && degree > 56.25), ()=>degreeInString="ENE"
+                },
+                {
+                    degree => (degree<101.25 && degree > 78.75), ()=>degreeInString="E"
+                },
+                {
+                    degree => (degree<123.75 && degree > 101.25), ()=>degreeInString="ESE"
+                },
+                {
+                    degree => (degree<146.25 && degree > 123.75), ()=>degreeInString="SE"
+                },
+                {
+                    degree => (degree<168.75 && degree > 146.25), ()=>degreeInString="SSE"
+                },
+                {
+                    degree => (degree<191.25 && degree > 168.75), ()=>degreeInString="S"
+                },
+                {
+                    degree => (degree<213.75 && degree > 191.25), ()=>degreeInString="SSW"
+                },
+                {
+                    degree => (degree < 236.25 && degree > 213.75), ()=>degreeInString="SW"
+                },
+                {
+                    degree => (degree < 258.75 && degree > 236.25), ()=>degreeInString="WSW"
+                },
+                {
+                    degree => (degree < 281.25 && degree > 258.75), ()=>degreeInString="W"
+                },
+                {
+                    degree => (degree < 303.75 && degree > 281.25), ()=>degreeInString="WNW"
+                },
+                {
+                    degree => (degree < 326.25 && degree > 303.75), ()=>degreeInString="NW"
+                },
+                {
+                    degree => (degree < 348.75 && degree > 326.25), ()=>degreeInString="NNW"
+                },
+            };
+
+            DegreeConvert.First(result => result.Key(windDegree)).Value();
+
+            return degreeInString;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            writer.WriteValue(value);
         }
     }
 }

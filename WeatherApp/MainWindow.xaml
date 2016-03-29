@@ -1,7 +1,7 @@
 ﻿<Window x:Class="WeatherApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Weather Application" Height="650" Width="525" Closed="Window_Closed">
 
     <Window.Resources>
         <Style x:Key="popUpStyle" TargetType="Popup" >
@@ -22,18 +22,18 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="9*"/>
+            <RowDefinition Height="18*"/>
         
         </Grid.RowDefinitions>
         
         <Menu IsMainMenu="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               FontSize="18">
             <MenuItem Header="_Settings">
-                <MenuItem Header="_Default City" />
+                <MenuItem Header="_Default City" Click="MenuItem_Default_Click" />
                 <Separator />
                 <MenuItem Header="_Faviours" />
                 <Separator />
-                <MenuItem Header="_Exit" />
+                <MenuItem Header="_Exit" Click="MenuItem_Exit_Click" />
             </MenuItem>
             <MenuItem Header="_About" />
         </Menu>
@@ -41,7 +41,7 @@
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="9*"/>
+                <RowDefinition Height="15*"/>
             </Grid.RowDefinitions>
             
             <Grid.ColumnDefinitions>
@@ -133,9 +133,78 @@
                 </ListBox>
             </Popup>
             
-            <Button Grid.Row="0" Grid.Column="1" Content="Search" Margin="9,0,9,0" Click="Button_Click"/>
+                <Grid Grid.Row="0" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                
+                    <Button Grid.Column="0"  Content="Search" Margin="9,0,9,0" Click="Button_Click"/>
+                    <Button Grid.Column="1" Content="Default" Margin="9,0,9,0" Click="Button_Defatult_Click"/>
+                </Grid>
             
-            
+            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="1.5*"/>
+                </Grid.RowDefinitions>
+
+                <GroupBox  BorderThickness="0,0,0,0" Grid.Row="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <Button Content="Add to Favour" HorizontalAlignment="Left"  Margin="3,18,6,18" FontSize="12" Click="Button_Add_Favour_Click"/>
+                        <TextBlock Name="txtCityName" FontSize="24" FontWeight="Bold" Text="Palmerston north" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" />
+                        <Button Content="Set To Default" HorizontalAlignment="Right"  Margin="3,18,6,18" FontSize="12" Click="Button_Set_Default_Click"/>
+                        <StackPanel Grid.Row="1" TextElement.FontSize="18" HorizontalAlignment="Center">
+                            <StackPanel.Resources>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="Margin" Value="3"/>
+                                    <Setter Property="Padding" Value="3" />
+                                </Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Margin" Value="0,3,12,3"/>
+                                    <Setter Property="Padding" Value="3" />
+                                </Style>
+                            </StackPanel.Resources>
+                            
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Label FontSize="18" Content="Current Temp:" />
+                                <TextBlock Name="txtCityTemp" Text="23'" MouseDown="txtCityTemp_MouseDown" Margin="0,3,0,3"/>
+                                <Label Name="txtCityTempS" Content="F"/>
+                            </WrapPanel>
+                            
+                            <TextBlock Name="txtCityWeather" Text="Rain" HorizontalAlignment="Center"/>
+                            
+                            <WrapPanel TextElement.FontSize="15">
+                                <Label Content="Humidity:" />
+                                <TextBlock Name="txtCityHumidity" Text="80%"/>
+                                <Label Content="Wind:"/>
+                                <TextBlock Name="txtCityWind" Text="12 km/h"/>
+                                <Label Content="Pressure:"/>
+                                <TextBlock Name="txtCityPressure" Text="100"/>
+                            </WrapPanel>
+                            <WrapPanel TextElement.FontSize="12" HorizontalAlignment="Center">
+                                <Label Content="Update Time:" />
+                                <TextBlock Text="now" Name="txtCityUpdateTime"/>
+                            </WrapPanel>
+                        </StackPanel>
+                       
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox BorderThickness="3,3,3,3" Grid.Row="1" Header="Daily Details" FontSize="15" FontWeight="Bold">
+                    <WrapPanel Orientation="Horizontal">
+                        
+                    </WrapPanel>
+                </GroupBox>
+            </Grid>
             
         </Grid>
         

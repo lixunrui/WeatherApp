@@ -27,7 +27,6 @@ namespace WeatherApp
                         Console.WriteLine(e.Message);
                         return null;
                     }
-                    
                 }
             }
         }

@@ -212,7 +212,7 @@ Parameters:
             wind.speed.value Wind speed, mps
             wind.speed.name Type of the wind
         wind.direction
-            wind.direction.value Wind direction, degrees (meteorological)
+            wind.direction.value Wind direction, degrees (meteorological) // 180: meaning from South
             wind.direction.code Code of the wind direction. Possilbe value is WSW, N, S etc.
             wind.direction.name Full name of the wind direction.
     clouds
